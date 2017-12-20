@@ -70,6 +70,7 @@ alias dockerclear='docker stop $(docker ps -a -q); docker rm $(docker ps -a -q);
 ###comments to the file are marked with #####!!!!!!
 
 ###########begin dockerfile
+alias notebook='jupyter notebook --no-browser --port=8890'
 
 #####THIS IS FOR SCRNASEQ ANALYSIS, CONTAINS SPECIFIC PYTHON AND R PACKAGES AND VERSIONS! 
 #####121717 JY
@@ -119,7 +120,6 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ######TO RUN JUPYTER NOTEBOOK, RUN CONTAINER WITH: docker run -it -p 8888:8888 image:version
 #####THEN RUN 'notebook'
-#####alias notebook='jupyter notebook --no-browser --port=8890'
 #####THEN ON HOST CAN ACCESS JUPTER NOTEBOOK DIRECTLY AT LOCALHOST:8888/TREE
 #####OR CAN ACCESS FROM REMOTE TERMINAL BY USING THIS ALIAS IN .BASHRC FILE:
 ##### alias notebook_docker="ssh -N -f -L localhost:8890:localhost:8888 johnny@biochem1.ucsf.edu; nohup firefox http://localhost:8890 &"
