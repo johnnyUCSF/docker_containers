@@ -14,6 +14,14 @@ docker build -t [yourimagename] .
 
 docker images
 
+### say you want to save this image as a fixed image, instead of compiling it each time
+### advantages of this method are sometimes in your dockerfile you are updating from a repository
+### so if the repo changes so does the final image
+### you can just build the image, view it with 'docker images' to get the name/id, and then save it as a file
+### to do this run:
+
+docker save -o [/outdir/outputfile] IMAGE
+
 ### an image is not a container; an image is just a compiled custom OS; to use an image you have to run a 'container' off of that image.
 ### you can run a container off an image by typing
 
