@@ -1,0 +1,123 @@
+#####short tutorial on how to use docker to generate, load, save containers
+####containers are easier to create use and transfer than virtual environments
+###JY 121917
+
+################General Docker Commands
+
+### to compile a docker image from code
+
+cd mydockerdir
+docker build -t [yourimagename] .
+
+### docker will now build an image with that name
+### you can view current images by typing
+
+docker images
+
+### an image is not a container; an image is just a compiled custom OS; to use an image you have to run a 'container' off of that image.
+### you can run a container off an image by typing
+
+docker run -i -t [repository:tag] /bin/bash
+
+### this will open up a shell inside your os, where you can install/run things within this new OS container
+### to disconnect from this container type
+
+exit
+
+### same as you would do to disconnect from an ssh shell connection
+### to see currently running containers you can run
+
+docker ps
+
+### to kill all stopped containers
+
+docker rm $(docker ps -a -q)
+
+### to delete all images
+
+docker rmi $(docker images -q)
+
+### to delete all containers, all images, everything
+### ( i am using an alias, it is easier)
+
+alias dockerclear='docker stop $(docker ps -a -q); docker rm $(docker ps -a -q); docker rmi $(docker images -a -q)'
+
+######################End General Docker Commands
+
+######################
+
+######################How to build custom docker image
+
+###Docker images are require 1) a file called Dockerfile 2) any packages/files you want to transfer over to the new docker container
+###Both the Dockerfile and the packages/files must be in the same directory, and you should cd to within this directory to compile an image
+###pretty simple
+
+###It gets a little more complicated looking inside the Dockerfile
+###for example here are the contents of the Dockerfile that is included with this tutorial
+###comments to the file are marked with #####!!!!!!
+
+###########begin dockerfile
+
+#####THIS IS FOR SCRNASEQ ANALYSIS, CONTAINS SPECIFIC PYTHON AND R PACKAGES AND VERSIONS! 
+#####121717 JY
+# Use a forked ubuntu runtime as a parent image
+FROM phusion/baseimage
+
+######!!!!!! this phusion baseimage was better than using a standalone ubuntu 16.04 base image
+######!!!!!! i recommend you use this instead of something like 'FROM ubuntu:16.04'
+
+# Use baseimage-docker's init system.
+CMD ["/sbin/my_init"]
+
+# Set the working directory to /app
+WORKDIR /app
+
+# Copy the current directory contents into the container at /app
+ADD . /home/johnny
+
+######!!!!!! this command is important for copying over the files you put in your folder to the directory on the new container OS
+######!!!!!! read it like 'ADD fromdir_on_realsystem newdir_on_newsystem' where ADD = cp
+
+# Install any needed packages specified in requirements.txt
+RUN apt-get update && \ 
+        apt-get install -y nano && \
+        apt-get install -y libx11-6 libxrender1 libcairo2-dev
+RUN echo "export PATH='/home/johnny/anaconda2/bin:$PATH'" >> ~/.bashrc
+RUN echo "alias notebook='jupyter notebook --allow-root --ip 0.0.0.0 --no-browser'" >> ~/.bashrc
+
+######!!!!!! here you can install any dependencies you need
+######!!!!!! if you have a lot of dependencies, say python packages, you can create a requirements.txt file
+######!!!!!! which contains the relevant 'packages:versions', one per line
+######!!!!!! and then write RUN pip install requirements.txt (or something like that)
+######!!!!!! i found this method to be ineffective since oftentimes you need dependencies in your os just to install the packages
+######!!!!!! and then you end up endlessly searching and installing dependencies
+######!!!!!! instead I use anaconda to manage my packages on my real OS and then copy that folder to the docker directory
+######!!!!!! also, use apt-get update && apt-get install -y [yourpackage] to install packages the os needs
+######!!!!!! make sure you run the two echo commands to modify your .bashrc file, to map the anaconda dir and allow you to run jupyter notebook
+
+# Make port 8888 available to the world outside this container
+EXPOSE 8888
+
+# Define environment variable
+ENV NAME World
+
+# Clean up APT when done.
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+######TO RUN JUPYTER NOTEBOOK, RUN CONTAINER WITH: docker run -it -p 8888:8888 image:version
+#####THEN RUN 'notebook'
+#####THEN ON HOST CAN ACCESS JUPTER NOTEBOOK DIRECTLY AT LOCALHOST:8888/TREE
+#####OR CAN ACCESS FROM REMOTE TERMINAL BY USING THIS ALIAS IN .BASHRC FILE:
+##### alias notebook_docker="ssh -N -f -L localhost:8890:localhost:8888 johnny@biochem1.ucsf.edu; nohup firefox http://localhost:8890 &"
+###########!!!!!!!!!!!! these instructions will allow you to run a jupyter notebook from within the container and then
+###########!!!!!!!!!!!! access it on a remote computer
+###########!!!!!!!!!!!! would look like this: yourpc->server->container
+###########!!!!!!!!!!!! but really your jupyter notebook accesses like this: yourpcbrowser->container
+
+###############end dockerfile
+
+
+###########################################End How to build custom docker image
+
+###End document
+##JY 121917
