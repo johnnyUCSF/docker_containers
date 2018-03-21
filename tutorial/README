@@ -25,7 +25,7 @@ docker save -o [/outdir/outputfile] IMAGE
 ### these images can be quite large if you are saving a bunch of system files/packages into it
 ### to load the image 
 
-docker load ...
+docker load --input ...
 
 ### an image is not a container; an image is just a compiled custom OS; to use an image you have to run a 'container' off of that image.
 ### you can run a container off an image by typing
