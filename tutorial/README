@@ -7,7 +7,7 @@
 ### to compile a docker image from code
 
 cd mydockerdir
-docker build -t [yourimagename] .
+docker build  [directory_containing_your_dockerfile] .
 
 ### docker will now build an image with that name
 ### you can view current images by typing
