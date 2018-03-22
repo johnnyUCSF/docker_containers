@@ -55,6 +55,10 @@ docker rmi $(docker images -q)
 
 alias dockerclear='docker stop $(docker ps -a -q); docker rm $(docker ps -a -q); docker rmi $(docker images -a -q)'
 
+### to run a docker container with access to host files:
+
+docker run -v [host directory path]:[container directory path] -it [image name]
+
 ######################End General Docker Commands
 
 ######################
